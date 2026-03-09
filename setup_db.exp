@@ -1,0 +1,26 @@
+set timeout 10
+log_user 1
+spawn su -c "psql -p 5433 -c \"CREATE ROLE daniel WITH LOGIN PASSWORD 'daniel' SUPERUSER;\"" root
+expect {
+    "Contraseña:" {
+        send "12321\n"
+        exp_continue
+    }
+    eof
+}
+spawn su -c "psql -p 5433 -c \"CREATE DATABASE iptv_db OWNER daniel;\"" root
+expect {
+    "Contraseña:" {
+        send "12321\n"
+        exp_continue
+    }
+    eof
+}
+spawn su -c "psql -p 5433 -d iptv_db -c \"GRANT ALL PRIVILEGES ON DATABASE iptv_db TO daniel;\"" root
+expect {
+    "Contraseña:" {
+        send "12321\n"
+        exp_continue
+    }
+    eof
+}
