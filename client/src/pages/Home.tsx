@@ -3,12 +3,12 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import ReactPlayer from "react-player";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  Tv, 
-  Settings, 
-  Shuffle, 
-  SkipForward, 
-  ListVideo, 
+import {
+  Tv,
+  Settings,
+  Shuffle,
+  SkipForward,
+  ListVideo,
   Power,
   VolumeX,
   Volume2
@@ -18,26 +18,26 @@ import type { ChannelWithVideos, Video } from "@shared/schema";
 
 export default function Home() {
   const { data: channels, isLoading } = useChannels();
-  
+
   const [activeChannelId, setActiveChannelId] = useState<number | null>(null);
   const [activeVideoIndex, setActiveVideoIndex] = useState(0);
-  
+
   const [isShuffle, setIsShuffle] = useState(false);
   const [isEpgOpen, setIsEpgOpen] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
-  
+
   // UI auto-hide timeout
   const [showControls, setShowControls] = useState(true);
   const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const activeChannel = channels?.find(c => c.id === activeChannelId);
-  
+
   // Sort videos by order
-  const sortedVideos = activeChannel?.videos 
-    ? [...activeChannel.videos].sort((a, b) => a.order - b.order) 
+  const sortedVideos = activeChannel?.videos
+    ? [...activeChannel.videos].sort((a, b) => a.order - b.order)
     : [];
-    
+
   const activeVideo = sortedVideos[activeVideoIndex];
 
   // Initialize active channel on load
@@ -67,7 +67,7 @@ export default function Home() {
 
   const handleVideoEnded = () => {
     if (!activeChannel || sortedVideos.length === 0) return;
-    
+
     if (isShuffle) {
       const nextIndex = Math.floor(Math.random() * sortedVideos.length);
       setActiveVideoIndex(nextIndex);
@@ -114,28 +114,22 @@ export default function Home() {
 
   return (
     <div className="w-screen h-screen bg-black overflow-hidden relative select-none">
-      
+
       {/* Video Player Background */}
       <div className="absolute inset-0 pointer-events-none">
-        {activeVideo && hasStarted ? (
-          <ReactPlayer
-            url={activeVideo.url}
-            playing={true}
+        {activeChannel && hasStarted ? (
+          <video
+            src={`/api/channels/${activeChannel.id}/stream.ts`}
+            autoPlay
             muted={isMuted}
-            controls={false}
-            width="100%"
-            height="100%"
+            style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }}
             onEnded={handleVideoEnded}
             onError={handleVideoError}
-            config={{
-              youtube: { playerVars: { origin: window.location.origin } }
-            }}
-            style={{ position: 'absolute', top: 0, left: 0, objectFit: 'cover' }}
           />
         ) : (
           <div className="w-full h-full bg-black flex items-center justify-center">
             {!hasStarted ? (
-              <Button 
+              <Button
                 onClick={() => setHasStarted(true)}
                 className="w-32 h-32 rounded-full bg-primary/20 hover:bg-primary border border-primary/50 text-white flex flex-col items-center justify-center transition-all duration-500 box-glow group pointer-events-auto"
               >
@@ -155,7 +149,7 @@ export default function Home() {
       {/* Top Controls UI */}
       <AnimatePresence>
         {showControls && hasStarted && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
@@ -178,19 +172,19 @@ export default function Home() {
 
             {/* Quick Actions */}
             <div className="flex gap-3 pointer-events-auto">
-              <button 
+              <button
                 onClick={() => setIsMuted(!isMuted)}
                 className="w-12 h-12 rounded-xl glass-button flex items-center justify-center"
               >
                 {isMuted ? <VolumeX className="w-5 h-5 text-destructive" /> : <Volume2 className="w-5 h-5" />}
               </button>
-              <button 
+              <button
                 onClick={() => setIsShuffle(!isShuffle)}
                 className={`w-12 h-12 rounded-xl glass-button flex items-center justify-center transition-all ${isShuffle ? 'bg-primary/20 text-primary border-primary/50 box-glow' : ''}`}
               >
                 <Shuffle className="w-5 h-5" />
               </button>
-              <button 
+              <button
                 onClick={handleVideoEnded}
                 className="w-12 h-12 rounded-xl glass-button flex items-center justify-center"
               >
@@ -207,13 +201,13 @@ export default function Home() {
       {/* Bottom EPG Trigger */}
       <AnimatePresence>
         {showControls && hasStarted && !isEpgOpen && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
             className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 pointer-events-auto"
           >
-            <Button 
+            <Button
               onClick={() => setIsEpgOpen(true)}
               className="bg-black/60 backdrop-blur-xl border border-white/20 text-white hover:bg-white/10 hover:border-white/40 rounded-full px-8 py-6 shadow-2xl transition-all"
             >
@@ -227,7 +221,7 @@ export default function Home() {
       {/* EPG Overlay (Bottom Drawer) */}
       <AnimatePresence>
         {isEpgOpen && (
-          <motion.div 
+          <motion.div
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
@@ -238,9 +232,9 @@ export default function Home() {
               <h3 className="text-xl font-display font-bold text-white flex items-center gap-2">
                 <ListVideo className="w-5 h-5 text-primary" /> Guide
               </h3>
-              <Button 
-                variant="ghost" 
-                size="sm" 
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={() => setIsEpgOpen(false)}
                 className="text-white/60 hover:text-white hover:bg-white/10"
               >
@@ -257,13 +251,13 @@ export default function Home() {
                     onClick={() => switchChannel(channel.id)}
                     className={`
                       w-full p-3 flex items-center gap-3 rounded-xl transition-all text-left
-                      ${activeChannelId === channel.id 
-                        ? 'bg-primary border border-primary text-black shadow-[0_0_15px_rgba(0,255,255,0.3)]' 
+                      ${activeChannelId === channel.id
+                        ? 'bg-primary border border-primary text-black shadow-[0_0_15px_rgba(0,255,255,0.3)]'
                         : 'bg-transparent border border-transparent text-white/70 hover:bg-white/10 hover:text-white'}
                     `}
                   >
                     <div className={`w-10 h-10 rounded-lg overflow-hidden shrink-0 flex items-center justify-center ${activeChannelId === channel.id ? 'bg-black/20' : 'bg-black/50 border border-white/10'}`}>
-                       {channel.logoUrl ? (
+                      {channel.logoUrl ? (
                         <img src={channel.logoUrl} alt={channel.name} className="w-full h-full object-cover" />
                       ) : (
                         <Tv className="w-5 h-5" />
@@ -289,13 +283,13 @@ export default function Home() {
                           }}
                           className={`
                             group text-left rounded-2xl overflow-hidden border transition-all aspect-video relative flex flex-col justify-end p-4
-                            ${isPlaying 
-                              ? 'border-accent bg-accent/20 shadow-[0_0_20px_rgba(150,50,255,0.2)]' 
+                            ${isPlaying
+                              ? 'border-accent bg-accent/20 shadow-[0_0_20px_rgba(150,50,255,0.2)]'
                               : 'border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/30'}
                           `}
                         >
                           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent z-0"></div>
-                          
+
                           {isPlaying && (
                             <div className="absolute top-3 right-3 flex items-center gap-1 z-10">
                               <span className="w-1.5 h-1.5 bg-accent rounded-full animate-bounce"></span>

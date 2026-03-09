@@ -273,22 +273,22 @@ export default function Admin() {
                             <h4 className="font-medium truncate">{video.title}</h4>
                             <div className="flex items-center gap-2">
                               <p className="text-xs text-muted-foreground truncate max-w-md">{video.url}</p>
-                              {(video as any).downloadStatus === "downloading" && (
+                              {video.downloadStatus === "downloading" && (
                                 <span className="flex items-center gap-1 text-[10px] bg-blue-500/20 text-blue-400 px-1.5 py-0.5 rounded border border-blue-500/20">
                                   <Loader2 className="w-3 h-3 animate-spin" /> Descargando
                                 </span>
                               )}
-                              {(video as any).downloadStatus === "completed" && (
+                              {video.downloadStatus === "completed" && (
                                 <span className="flex items-center gap-1 text-[10px] bg-green-500/20 text-green-400 px-1.5 py-0.5 rounded border border-green-500/20">
                                   <FileCheck className="w-3 h-3" /> Local
                                 </span>
                               )}
-                              {(video as any).downloadStatus === "failed" && (
+                              {video.downloadStatus === "failed" && (
                                 <span className="flex items-center gap-1 text-[10px] bg-red-500/20 text-red-400 px-1.5 py-0.5 rounded border border-red-500/20">
                                   <AlertTriangle className="w-3 h-3" /> Error
                                 </span>
                               )}
-                              {(video as any).downloadStatus === "pending" && (
+                              {video.downloadStatus === "pending" && (
                                 <span className="flex items-center gap-1 text-[10px] bg-white/5 text-muted-foreground px-1.5 py-0.5 rounded border border-white/10">
                                   <Clock className="w-3 h-3" /> Pendiente
                                 </span>
